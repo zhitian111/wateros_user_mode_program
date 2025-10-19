@@ -11,6 +11,7 @@ pub mod riscv;
 #[unsafe(link_section = ".text.entry")]
 pub extern "C" fn _start() {
     riscv::clear_bss();
+    exit(main());
 }
 
 #[linkage = "weak"]

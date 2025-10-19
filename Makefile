@@ -26,6 +26,8 @@ riscv_bin_path := ./bin/riscv
 
 bin_path := ./bin
 
+rust_objcopy_flag := --strip-all -O binary --gap-fill=0x00
+
 define TRACE
 	@echo -e "$(COLOR_ANSI_PURPLE)[MAKEFILE]$(COLOR_ANSI_CLEAR)$(COLOR_ANSI_BLUE)\t[TRACE]\t$(1)$(COLOR_ANSI_CLEAR)"
 endef
@@ -57,9 +59,10 @@ $(riscv_build_artifact_path)/hello_world: ./src/bin/hello_world.rs $(riscv_depen
 
 $(riscv_bin_path)/hello_world.bin: $(riscv_build_artifact_path)/hello_world
 	$(call INFO, "清除 hello_world 二进制文件元数据...");
-	@mkdir $(bin_path) >/dev/null 2>/dev/null
-	@mkdir $(riscv_bin_path) >/dev/null 2>/dev/null
+	@-mkdir  $(bin_path) >/dev/null 2>/dev/null
+	@-mkdir  $(riscv_bin_path) >/dev/null 2>/dev/null
 	@rm -f $(riscv_bin_path)/hello_world.bin
-	@rust-objcopy --strip-all $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
+	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
 	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
+
 rv_hello_world: $(riscv_bin_path)/hello_world.bin
