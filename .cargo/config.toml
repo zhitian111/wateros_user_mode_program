@@ -1,0 +1,10 @@
+[build]
+# target = ["riscv64gc-unknown-none-elf", "loongarch64-unknown-none"]
+target = "riscv64gc-unknown-none-elf"
+
+[target.riscv64gc-unknown-none-elf]
+rustflags = [
+  "-Clink-arg=-Tsrc/riscv/linker_script/linker.ld", "-Cforce-frame-pointers=yes"
+]
+
+[target.loonarch64-unkonwn-none]

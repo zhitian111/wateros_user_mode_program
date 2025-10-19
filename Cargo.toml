@@ -3,4 +3,15 @@ name = "wateros_user_mode_program"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "wateros_user_lib"
+path = "./src/lib.rs"
+
+[[bin]]
+name = "hello_world"
+path = "./src/bin/hello_world.rs"
+
 [dependencies]
+
+[profile.release]
+debug = true
