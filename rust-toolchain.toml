@@ -1,4 +1,4 @@
 [toolchain]
-channel = "nightly"
+channel = "nightly-2025-10-15"
 targets = ["riscv64gc-unknown-none-elf", "loongarch64-unknown-none"]
-components = ["rustfmt","rust-src"]
+components = ["rustfmt","rust-src","rust-analyzer", "llvm-tools"]

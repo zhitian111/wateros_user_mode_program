@@ -1,0 +1,69 @@
+# 这是自动生成的 riscv 平台 bin 构建规则
+# ⚠️ 请勿手动修改！运行 ./gen_bin_makefile.sh 来更新。
+
+.PHONY: rv_all_bin
+.PHONY: \
+	 rv_hello_world \
+	 rv_store_fault \
+	 rv_power \
+
+
+
+rv_all_bin: \
+	rv_hello_world \
+	rv_store_fault \
+	rv_power \
+
+
+
+# ------------------------------
+# hello_world
+# ------------------------------
+$(riscv_build_artifact_path)/hello_world: ./src/bin/hello_world.rs
+	$(call INFO, "开始构建 riscv 平台的 hello_world...")
+	@$(CARGO) build $(riscv_flags) --bin hello_world
+	$(call INFO, "riscv 平台的 hello_world 构建完成！请见 $(riscv_build_artifact_path)/hello_world")
+
+$(riscv_bin_path)/hello_world.bin: $(riscv_build_artifact_path)/hello_world
+	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件元数据...");
+	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
+
+rv_hello_world: $(riscv_bin_path)/hello_world.bin
+
+# ------------------------------
+# store_fault
+# ------------------------------
+$(riscv_build_artifact_path)/store_fault: ./src/bin/store_fault.rs
+	$(call INFO, "开始构建 riscv 平台的 store_fault...")
+	@$(CARGO) build $(riscv_flags) --bin store_fault
+	$(call INFO, "riscv 平台的 store_fault 构建完成！请见 $(riscv_build_artifact_path)/store_fault")
+
+$(riscv_bin_path)/store_fault.bin: $(riscv_build_artifact_path)/store_fault
+	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件元数据...");
+	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/store_fault $(riscv_bin_path)/store_fault.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/store_fault.bin")
+
+rv_store_fault: $(riscv_bin_path)/store_fault.bin
+
+# ------------------------------
+# power
+# ------------------------------
+$(riscv_build_artifact_path)/power: ./src/bin/power.rs
+	$(call INFO, "开始构建 riscv 平台的 power...")
+	@$(CARGO) build $(riscv_flags) --bin power
+	$(call INFO, "riscv 平台的 power 构建完成！请见 $(riscv_build_artifact_path)/power")
+
+$(riscv_bin_path)/power.bin: $(riscv_build_artifact_path)/power
+	$(call INFO, "清除 riscv 平台的 power 二进制文件元数据...");
+	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/power $(riscv_bin_path)/power.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/power.bin")
+
+rv_power: $(riscv_bin_path)/power.bin
+
