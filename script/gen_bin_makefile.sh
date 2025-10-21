@@ -37,6 +37,7 @@ cat > "$OUTPUT" <<'HEADER'
 # ⚠️ 请勿手动修改！运行 ./gen_bin_makefile.sh 来更新。
 
 .PHONY: rv_all_bin
+.PHONY: rv_all_elf
 HEADER
 
 # 标记伪目标
@@ -48,6 +49,12 @@ echo -e "\n\n" >> "$OUTPUT"
 
 # 生成 all 规则
 echo "rv_all_bin: \\" >> "$OUTPUT"
+for bin in $BIN_NAMES; do
+    echo -e "\t\$(riscv_bin_path)/${bin}.bin \\" >> "$OUTPUT"
+done
+echo -e "\n\n" >> "$OUTPUT"
+
+echo "rv_all_elf: \\" >> "$OUTPUT"
 for bin in $BIN_NAMES; do
     echo -e "\trv_${bin} \\" >> "$OUTPUT"
 done
@@ -65,13 +72,20 @@ cat >> "$OUTPUT" <<RULE
 	\$(call INFO, "riscv 平台的 ${bin} 构建完成！请见 \$(riscv_build_artifact_path)/${bin}")
 
 \$(riscv_bin_path)/${bin}.bin: \$(riscv_build_artifact_path)/${bin}
-	\$(call INFO, "清除 riscv 平台的 ${bin} 二进制文件元数据...");
+	\$(call INFO, "清除 riscv 平台的 ${bin} 二进制文件元数据以生成 bin 文件...");
 	@-mkdir -p  \$(bin_path) >/dev/null 2>/dev/null
 	@-mkdir -p  \$(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy \$(rust_objcopy_flag) \$(riscv_build_artifact_path)/${bin} \$(riscv_bin_path)/${bin}.bin
+	@rust-objcopy \$(rust_objcopy_bin_flag) \$(riscv_build_artifact_path)/${bin} \$(riscv_bin_path)/${bin}.bin
 	\$(call INFO, "清除完成！请见 \$(riscv_bin_path)/${bin}.bin")
 
-rv_${bin}: \$(riscv_bin_path)/${bin}.bin
+\$(riscv_elf_path)/${bin}.elf: \$(riscv_build_artifact_path)/${bin}
+	\$(call INFO, "清除 riscv 平台的 ${bin} 二进制文件符号表以生成 elf 文件...");
+	@-mkdir -p  \$(elf_path) >/dev/null 2>/dev/null
+	@-mkdir -p  \$(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy \$(rust_objcopy_elf_flag) \$(riscv_build_artifact_path)/${bin} \$(riscv_elf_path)/${bin}.elf
+	\$(call INFO, "清除完成！请见 \$(riscv_bin_path)/${bin}.bin")
+
+rv_${bin}: \$(riscv_bin_path)/${bin}.bin \$(riscv_elf_path)/${bin}.elf
 
 RULE
 done

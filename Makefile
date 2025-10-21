@@ -26,11 +26,16 @@ riscv_build_artifact_path := ./target/riscv64gc-unknown-none-elf/release
 
 riscv_bin_path := ./bin/riscv
 
+riscv_elf_path := ./elf/riscv
+
 rv_wateros_user_lib_stamp := $(riscv_build_artifact_path)/deps/libwateros_user_lib.stamp
 
 bin_path := ./bin
 
-rust_objcopy_flag := --strip-all -O binary --gap-fill=0x00
+elf_path := ./elf
+
+rust_objcopy_bin_flag := --strip-all -O binary --gap-fill=0x00
+rust_objcopy_elf_flag := --strip-all -O binary --gap-fill=0x00
 
 define TRACE
 	@echo -e "$(COLOR_ANSI_PURPLE)[MAKEFILE]$(COLOR_ANSI_CLEAR)$(COLOR_ANSI_BLUE)\t[TRACE]\t$(1)$(COLOR_ANSI_CLEAR)"
@@ -54,7 +59,9 @@ all_start_info:
 rv_all_start_info:
 	$(call INFO, "开始为 riscv 平台构建所有用户态程序...")
 
-rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin
+rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin rv_all_elf
+	$(call INFO, "所有 riscv 平台的用户态程序已构建完成！")
+
 
 ./src/bin/Makefile.generated: ./Cargo.toml ./script/gen_bin_makefile.sh
 	$(call INFO, "开始生成构建用户态程序所需的 Makefile")
@@ -64,7 +71,7 @@ rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin
 
 
 all: all_start_info ./src/bin/Makefile.generated rv_all
-	$(call INFO, "构建完成！")
+	$(call INFO, "所有用户态程序已构建完成！")
 
 rv_wateros_user_lib: $(rv_wateros_user_lib_stamp)
 

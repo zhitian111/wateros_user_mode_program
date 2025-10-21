@@ -2,6 +2,7 @@
 # ⚠️ 请勿手动修改！运行 ./gen_bin_makefile.sh 来更新。
 
 .PHONY: rv_all_bin
+.PHONY: rv_all_elf
 .PHONY: \
 	 rv_hello_world \
 	 rv_store_fault \
@@ -10,6 +11,13 @@
 
 
 rv_all_bin: \
+	$(riscv_bin_path)/hello_world.bin \
+	$(riscv_bin_path)/store_fault.bin \
+	$(riscv_bin_path)/power.bin \
+
+
+
+rv_all_elf: \
 	rv_hello_world \
 	rv_store_fault \
 	rv_power \
@@ -25,13 +33,20 @@ $(riscv_build_artifact_path)/hello_world: ./src/bin/hello_world.rs
 	$(call INFO, "riscv 平台的 hello_world 构建完成！请见 $(riscv_build_artifact_path)/hello_world")
 
 $(riscv_bin_path)/hello_world.bin: $(riscv_build_artifact_path)/hello_world
-	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件元数据...");
+	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件元数据以生成 bin 文件...");
 	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
 	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
 	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
 
-rv_hello_world: $(riscv_bin_path)/hello_world.bin
+$(riscv_elf_path)/hello_world.elf: $(riscv_build_artifact_path)/hello_world
+	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件符号表以生成 elf 文件...");
+	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/hello_world $(riscv_elf_path)/hello_world.elf
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
+
+rv_hello_world: $(riscv_bin_path)/hello_world.bin $(riscv_elf_path)/hello_world.elf
 
 # ------------------------------
 # store_fault
@@ -42,13 +57,20 @@ $(riscv_build_artifact_path)/store_fault: ./src/bin/store_fault.rs
 	$(call INFO, "riscv 平台的 store_fault 构建完成！请见 $(riscv_build_artifact_path)/store_fault")
 
 $(riscv_bin_path)/store_fault.bin: $(riscv_build_artifact_path)/store_fault
-	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件元数据...");
+	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件元数据以生成 bin 文件...");
 	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
 	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/store_fault $(riscv_bin_path)/store_fault.bin
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/store_fault $(riscv_bin_path)/store_fault.bin
 	$(call INFO, "清除完成！请见 $(riscv_bin_path)/store_fault.bin")
 
-rv_store_fault: $(riscv_bin_path)/store_fault.bin
+$(riscv_elf_path)/store_fault.elf: $(riscv_build_artifact_path)/store_fault
+	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件符号表以生成 elf 文件...");
+	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/store_fault $(riscv_elf_path)/store_fault.elf
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/store_fault.bin")
+
+rv_store_fault: $(riscv_bin_path)/store_fault.bin $(riscv_elf_path)/store_fault.elf
 
 # ------------------------------
 # power
@@ -59,11 +81,18 @@ $(riscv_build_artifact_path)/power: ./src/bin/power.rs
 	$(call INFO, "riscv 平台的 power 构建完成！请见 $(riscv_build_artifact_path)/power")
 
 $(riscv_bin_path)/power.bin: $(riscv_build_artifact_path)/power
-	$(call INFO, "清除 riscv 平台的 power 二进制文件元数据...");
+	$(call INFO, "清除 riscv 平台的 power 二进制文件元数据以生成 bin 文件...");
 	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
 	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/power $(riscv_bin_path)/power.bin
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/power $(riscv_bin_path)/power.bin
 	$(call INFO, "清除完成！请见 $(riscv_bin_path)/power.bin")
 
-rv_power: $(riscv_bin_path)/power.bin
+$(riscv_elf_path)/power.elf: $(riscv_build_artifact_path)/power
+	$(call INFO, "清除 riscv 平台的 power 二进制文件符号表以生成 elf 文件...");
+	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
+	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/power $(riscv_elf_path)/power.elf
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/power.bin")
+
+rv_power: $(riscv_bin_path)/power.bin $(riscv_elf_path)/power.elf
 
