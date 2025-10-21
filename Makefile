@@ -1,7 +1,7 @@
 SHELL := /bin/bash
-.PHONY: clean check
-.PHONY: rv_hello_world
-
+export CARGO_TERM_COLOR=always
+.PHONY: clean check all rv_all
+.PHONY: rv_hello_world rv_store_fault rv_wateros_user_lib
 COLOR_ANSI_RED := \033[31m
 COLOR_ANSI_GREEN := \033[32m
 COLOR_ANSI_YELLOW := \033[33m
@@ -14,6 +14,8 @@ COLOR_ANSI_CLEAR := \033[0m
 
 common_dependencies := ./src/share/**
 
+CARGO = stdbuf -oL -eL cargo
+
 riscv_dependencies := $(common_dependencies) \
 					  ./src/riscv/** \
 					  ./src/lib.rs
@@ -23,6 +25,8 @@ riscv_flags := --release --target riscv64gc-unknown-none-elf
 riscv_build_artifact_path := ./target/riscv64gc-unknown-none-elf/release
 
 riscv_bin_path := ./bin/riscv
+
+rv_wateros_user_lib_stamp := $(riscv_build_artifact_path)/deps/libwateros_user_lib.stamp
 
 bin_path := ./bin
 
@@ -42,27 +46,41 @@ define ERROR
 	@exit $$2
 endef
 
+-include ./src/bin/Makefile.generated
+
+all_start_info:
+	$(call INFO, "开始构建所有用户态程序...")
+
+rv_all_start_info:
+	$(call INFO, "开始为 riscv 平台构建所有用户态程序...")
+
+rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin
+
+./src/bin/Makefile.generated: ./Cargo.toml ./script/gen_bin_makefile.sh
+	$(call INFO, "开始生成构建用户态程序所需的 Makefile")
+	@bash ./script/gen_bin_makefile.sh
+	$(call INFO, "构建用户态程序所需的 Makefile 生成完成！")
+
+
+
+all: all_start_info ./src/bin/Makefile.generated rv_all
+	$(call INFO, "构建完成！")
+
+rv_wateros_user_lib: $(rv_wateros_user_lib_stamp)
+
+$(rv_wateros_user_lib_stamp): $(riscv_dependencies)
+	$(call INFO, "开始构建为 riscv 平台构建 wateros_user_lib")
+	@$(CARGO) build $(riscv_flags) --lib
+	@touch $(rv_wateros_user_lib_stamp)
+	$(call INFO, "riscv 平台的 wateros_user_lib 构建完成！")
+
 check:
 	$(call INFO, "开始 cargo check ...")
-	@cargo check $(riscv_flags)
+	@$(CARGO) check $(riscv_flags)
 	$(call INFO, "cargo check 完成！")
 
 clean:
 	$(call INFO, "开始清理构建产物...")
-	@cargo clean
+	@$(CARGO) clean
 	@rm -rf ./bin
 	$(call INFO, "清理完成！")
-$(riscv_build_artifact_path)/hello_world: ./src/bin/hello_world.rs $(riscv_dependencies)
-	$(call INFO, "开始构建 riscv 平台的 hello_world...")
-	@cargo build $(riscv_flags)
-	$(call INFO, "riscv 平台的 hello_world 构架完成！")
-
-$(riscv_bin_path)/hello_world.bin: $(riscv_build_artifact_path)/hello_world
-	$(call INFO, "清除 hello_world 二进制文件元数据...");
-	@-mkdir  $(bin_path) >/dev/null 2>/dev/null
-	@-mkdir  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rm -f $(riscv_bin_path)/hello_world.bin
-	@rust-objcopy $(rust_objcopy_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
-
-rv_hello_world: $(riscv_bin_path)/hello_world.bin

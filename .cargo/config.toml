@@ -9,3 +9,6 @@ rustflags = [
 ]
 
 [target.loonarch64-unkonwn-none]
+
+[term]
+color = "always"
