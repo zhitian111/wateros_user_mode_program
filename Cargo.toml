@@ -8,14 +8,14 @@ name = "wateros_user_lib"
 path = "./src/lib.rs"
 
 [[bin]]
-name = "hello_world"
-path = "./src/bin/hello_world.rs"
+name = "000_hello_world"
+path = "./src/bin/000_hello_world.rs"
 [[bin]]
-name = "store_fault"
-path = "./src/bin/store_fault.rs"
+name = "001_power"
+path = "./src/bin/001_power.rs"
 [[bin]]
-name = "power"
-path = "./src/bin/power.rs"
+name = "002_store_fault"
+path = "./src/bin/002_store_fault.rs"
 
 [dependencies]
 

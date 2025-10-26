@@ -1,98 +1,132 @@
-# 这是自动生成的 riscv 平台 bin 构建规则
-# ⚠️ 请勿手动修改！运行 ./gen_bin_makefile.sh 来更新。
+# ==============================================
+# ⚙️ 自动生成的 riscv 平台 bin 构建规则
+# ⚠️ 请勿手动修改！运行 ./script/gen_bin_makefile.sh 来更新。
+# ==============================================
 
-.PHONY: rv_all_bin
-.PHONY: rv_all_elf
+# 可调常量：单个程序的地址偏移步长
+OFFSET_UNIT := 0x20000
+
+.PHONY: rv_all_bin rv_all_elf
 .PHONY: \
-	 rv_hello_world \
-	 rv_store_fault \
-	 rv_power \
+	rv_000_hello_world \
+	rv_001_power \
+	rv_002_store_fault \
 
 
 
 rv_all_bin: \
-	$(riscv_bin_path)/hello_world.bin \
-	$(riscv_bin_path)/store_fault.bin \
-	$(riscv_bin_path)/power.bin \
+	$(riscv_bin_path)/000_hello_world.bin \
+	$(riscv_bin_path)/001_power.bin \
+	$(riscv_bin_path)/002_store_fault.bin \
 
 
 
 rv_all_elf: \
-	rv_hello_world \
-	rv_store_fault \
-	rv_power \
+	rv_000_hello_world \
+	rv_001_power \
+	rv_002_store_fault \
 
 
 
 # ------------------------------
-# hello_world
+# 000_hello_world
 # ------------------------------
-$(riscv_build_artifact_path)/hello_world: ./src/bin/hello_world.rs
-	$(call INFO, "开始构建 riscv 平台的 hello_world...")
-	@$(CARGO) build $(riscv_flags) --bin hello_world
-	$(call INFO, "riscv 平台的 hello_world 构建完成！请见 $(riscv_build_artifact_path)/hello_world")
+$(riscv_build_artifact_path)/000_hello_world: ./src/bin/000_hello_world.rs
+	$(call INFO, "更新 linker.ld 中的 START_OFFSET 对应 000_hello_world...")
+	@PREFIX_NUM=$$(echo "000_hello_world" | grep -oE '^[0-9]+'); \
+	if [ -z "$$PREFIX_NUM" ]; then PREFIX_NUM=0; fi; \
+	PREFIX_NUM=$$((10#$$PREFIX_NUM)); \
+	OFFSET_VAL=$$(($(OFFSET_UNIT) * PREFIX_NUM)); \
+	OFFSET_HEX=$$(printf "0x%X" "$$OFFSET_VAL"); \
+	echo "[MAKEFILE] 更新 linker.ld: START_OFFSET = $$OFFSET_HEX (编号 $$PREFIX_NUM)"; \
+	if [ -f ./src/riscv/linker_script/linker.ld ]; then \
+		awk -v new_val="$$OFFSET_HEX" 'NR==3{sub(/=.*/, "= " new_val ";")} {print}' ./src/riscv/linker_script/linker.ld > ./src/riscv/linker_script/linker.ld.tmp && mv ./src/riscv/linker_script/linker.ld.tmp ./src/riscv/linker_script/linker.ld; \
+	else \
+		echo "[MAKEFILE] ⚠️ 未找到 linker.ld，跳过更新"; \
+	fi
+	$(call INFO, "开始构建 riscv 平台的 000_hello_world...")
+	@$(CARGO) build $(riscv_flags) --bin 000_hello_world
+	$(call INFO, "riscv 平台的 000_hello_world 构建完成！请见 $(riscv_build_artifact_path)/000_hello_world")
 
-$(riscv_bin_path)/hello_world.bin: $(riscv_build_artifact_path)/hello_world
-	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件元数据以生成 bin 文件...");
-	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/hello_world $(riscv_bin_path)/hello_world.bin
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
+$(riscv_bin_path)/000_hello_world.bin: $(riscv_build_artifact_path)/000_hello_world
+	$(call INFO, "清除 riscv 平台的 000_hello_world 二进制文件元数据以生成 bin 文件...")
+	@-mkdir -p $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/000_hello_world $(riscv_bin_path)/000_hello_world.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/000_hello_world.bin")
 
-$(riscv_elf_path)/hello_world.elf: $(riscv_build_artifact_path)/hello_world
-	$(call INFO, "清除 riscv 平台的 hello_world 二进制文件符号表以生成 elf 文件...");
-	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/hello_world $(riscv_elf_path)/hello_world.elf
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/hello_world.bin")
+$(riscv_elf_path)/000_hello_world.elf: $(riscv_build_artifact_path)/000_hello_world
+	$(call INFO, "清除 riscv 平台的 000_hello_world 二进制文件符号表以生成 elf 文件...")
+	@-mkdir -p $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/000_hello_world $(riscv_elf_path)/000_hello_world.elf
+	$(call INFO, "清除完成！请见 $(riscv_elf_path)/000_hello_world.elf")
 
-rv_hello_world: $(riscv_bin_path)/hello_world.bin $(riscv_elf_path)/hello_world.elf
-
-# ------------------------------
-# store_fault
-# ------------------------------
-$(riscv_build_artifact_path)/store_fault: ./src/bin/store_fault.rs
-	$(call INFO, "开始构建 riscv 平台的 store_fault...")
-	@$(CARGO) build $(riscv_flags) --bin store_fault
-	$(call INFO, "riscv 平台的 store_fault 构建完成！请见 $(riscv_build_artifact_path)/store_fault")
-
-$(riscv_bin_path)/store_fault.bin: $(riscv_build_artifact_path)/store_fault
-	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件元数据以生成 bin 文件...");
-	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/store_fault $(riscv_bin_path)/store_fault.bin
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/store_fault.bin")
-
-$(riscv_elf_path)/store_fault.elf: $(riscv_build_artifact_path)/store_fault
-	$(call INFO, "清除 riscv 平台的 store_fault 二进制文件符号表以生成 elf 文件...");
-	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/store_fault $(riscv_elf_path)/store_fault.elf
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/store_fault.bin")
-
-rv_store_fault: $(riscv_bin_path)/store_fault.bin $(riscv_elf_path)/store_fault.elf
+rv_000_hello_world: $(riscv_bin_path)/000_hello_world.bin $(riscv_elf_path)/000_hello_world.elf
 
 # ------------------------------
-# power
+# 001_power
 # ------------------------------
-$(riscv_build_artifact_path)/power: ./src/bin/power.rs
-	$(call INFO, "开始构建 riscv 平台的 power...")
-	@$(CARGO) build $(riscv_flags) --bin power
-	$(call INFO, "riscv 平台的 power 构建完成！请见 $(riscv_build_artifact_path)/power")
+$(riscv_build_artifact_path)/001_power: ./src/bin/001_power.rs
+	$(call INFO, "更新 linker.ld 中的 START_OFFSET 对应 001_power...")
+	@PREFIX_NUM=$$(echo "001_power" | grep -oE '^[0-9]+'); \
+	if [ -z "$$PREFIX_NUM" ]; then PREFIX_NUM=0; fi; \
+	PREFIX_NUM=$$((10#$$PREFIX_NUM)); \
+	OFFSET_VAL=$$(($(OFFSET_UNIT) * PREFIX_NUM)); \
+	OFFSET_HEX=$$(printf "0x%X" "$$OFFSET_VAL"); \
+	echo "[MAKEFILE] 更新 linker.ld: START_OFFSET = $$OFFSET_HEX (编号 $$PREFIX_NUM)"; \
+	if [ -f ./src/riscv/linker_script/linker.ld ]; then \
+		awk -v new_val="$$OFFSET_HEX" 'NR==3{sub(/=.*/, "= " new_val ";")} {print}' ./src/riscv/linker_script/linker.ld > ./src/riscv/linker_script/linker.ld.tmp && mv ./src/riscv/linker_script/linker.ld.tmp ./src/riscv/linker_script/linker.ld; \
+	else \
+		echo "[MAKEFILE] ⚠️ 未找到 linker.ld，跳过更新"; \
+	fi
+	$(call INFO, "开始构建 riscv 平台的 001_power...")
+	@$(CARGO) build $(riscv_flags) --bin 001_power
+	$(call INFO, "riscv 平台的 001_power 构建完成！请见 $(riscv_build_artifact_path)/001_power")
 
-$(riscv_bin_path)/power.bin: $(riscv_build_artifact_path)/power
-	$(call INFO, "清除 riscv 平台的 power 二进制文件元数据以生成 bin 文件...");
-	@-mkdir -p  $(bin_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_bin_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/power $(riscv_bin_path)/power.bin
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/power.bin")
+$(riscv_bin_path)/001_power.bin: $(riscv_build_artifact_path)/001_power
+	$(call INFO, "清除 riscv 平台的 001_power 二进制文件元数据以生成 bin 文件...")
+	@-mkdir -p $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/001_power $(riscv_bin_path)/001_power.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/001_power.bin")
 
-$(riscv_elf_path)/power.elf: $(riscv_build_artifact_path)/power
-	$(call INFO, "清除 riscv 平台的 power 二进制文件符号表以生成 elf 文件...");
-	@-mkdir -p  $(elf_path) >/dev/null 2>/dev/null
-	@-mkdir -p  $(riscv_elf_path) >/dev/null 2>/dev/null
-	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/power $(riscv_elf_path)/power.elf
-	$(call INFO, "清除完成！请见 $(riscv_bin_path)/power.bin")
+$(riscv_elf_path)/001_power.elf: $(riscv_build_artifact_path)/001_power
+	$(call INFO, "清除 riscv 平台的 001_power 二进制文件符号表以生成 elf 文件...")
+	@-mkdir -p $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/001_power $(riscv_elf_path)/001_power.elf
+	$(call INFO, "清除完成！请见 $(riscv_elf_path)/001_power.elf")
 
-rv_power: $(riscv_bin_path)/power.bin $(riscv_elf_path)/power.elf
+rv_001_power: $(riscv_bin_path)/001_power.bin $(riscv_elf_path)/001_power.elf
+
+# ------------------------------
+# 002_store_fault
+# ------------------------------
+$(riscv_build_artifact_path)/002_store_fault: ./src/bin/002_store_fault.rs
+	$(call INFO, "更新 linker.ld 中的 START_OFFSET 对应 002_store_fault...")
+	@PREFIX_NUM=$$(echo "002_store_fault" | grep -oE '^[0-9]+'); \
+	if [ -z "$$PREFIX_NUM" ]; then PREFIX_NUM=0; fi; \
+	PREFIX_NUM=$$((10#$$PREFIX_NUM)); \
+	OFFSET_VAL=$$(($(OFFSET_UNIT) * PREFIX_NUM)); \
+	OFFSET_HEX=$$(printf "0x%X" "$$OFFSET_VAL"); \
+	echo "[MAKEFILE] 更新 linker.ld: START_OFFSET = $$OFFSET_HEX (编号 $$PREFIX_NUM)"; \
+	if [ -f ./src/riscv/linker_script/linker.ld ]; then \
+		awk -v new_val="$$OFFSET_HEX" 'NR==3{sub(/=.*/, "= " new_val ";")} {print}' ./src/riscv/linker_script/linker.ld > ./src/riscv/linker_script/linker.ld.tmp && mv ./src/riscv/linker_script/linker.ld.tmp ./src/riscv/linker_script/linker.ld; \
+	else \
+		echo "[MAKEFILE] ⚠️ 未找到 linker.ld，跳过更新"; \
+	fi
+	$(call INFO, "开始构建 riscv 平台的 002_store_fault...")
+	@$(CARGO) build $(riscv_flags) --bin 002_store_fault
+	$(call INFO, "riscv 平台的 002_store_fault 构建完成！请见 $(riscv_build_artifact_path)/002_store_fault")
+
+$(riscv_bin_path)/002_store_fault.bin: $(riscv_build_artifact_path)/002_store_fault
+	$(call INFO, "清除 riscv 平台的 002_store_fault 二进制文件元数据以生成 bin 文件...")
+	@-mkdir -p $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/002_store_fault $(riscv_bin_path)/002_store_fault.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/002_store_fault.bin")
+
+$(riscv_elf_path)/002_store_fault.elf: $(riscv_build_artifact_path)/002_store_fault
+	$(call INFO, "清除 riscv 平台的 002_store_fault 二进制文件符号表以生成 elf 文件...")
+	@-mkdir -p $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/002_store_fault $(riscv_elf_path)/002_store_fault.elf
+	$(call INFO, "清除完成！请见 $(riscv_elf_path)/002_store_fault.elf")
+
+rv_002_store_fault: $(riscv_bin_path)/002_store_fault.bin $(riscv_elf_path)/002_store_fault.elf
 
