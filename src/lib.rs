@@ -2,10 +2,10 @@
 #![no_main]
 #![feature(linkage)]
 
-pub mod share;
-
-#[cfg(target_arch = "riscv64")]
-pub mod riscv;
+mod riscv;
+mod share;
+pub use share::console::print;
+use share::syscall;
 
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.entry")]
@@ -21,11 +21,15 @@ pub fn main() -> i32 {
 }
 
 pub fn write(fd : usize, buf : &[u8]) -> isize {
-    #[cfg(target_arch = "riscv64")]
-    riscv::syscall::sys_write(fd, buf)
+    syscall::sys_write(fd, buf)
 }
 
 pub fn exit(exit_code : i32) -> isize {
-    #[cfg(target_arch = "riscv64")]
-    riscv::syscall::sys_exit(exit_code)
+    syscall::sys_exit(exit_code)
+}
+pub fn yield_() -> isize {
+    syscall::sys_yield()
+}
+pub fn get_time() -> isize {
+    syscall::sys_get_time()
 }
