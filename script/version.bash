@@ -10,7 +10,7 @@ source $SCRIPT_DIR/source/console.bash
 # 版本号生成逻辑
 # ==============================
 
-VERSION_BASE="0.3.0"
+VERSION_BASE="0.1.0"
 STAGE="prototype"
 BUILD_NUM=$(git rev-list --count HEAD 2>/dev/null || echo "0")
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
