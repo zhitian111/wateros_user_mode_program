@@ -16,6 +16,19 @@ path = "./src/bin/001_power.rs"
 [[bin]]
 name = "002_store_fault"
 path = "./src/bin/002_store_fault.rs"
+[[bin]]
+name = "003_sleep"
+path = "./src/bin/003_sleep.rs"
+[[bin]]
+name = "004_power_3"
+path = "./src/bin/004_power_3.rs"
+[[bin]]
+name = "005_power_5"
+path = "./src/bin/005_power_5.rs"
+[[bin]]
+name = "006_power_7"
+path = "./src/bin/006_power_7.rs"
+
 
 [dependencies]
 
