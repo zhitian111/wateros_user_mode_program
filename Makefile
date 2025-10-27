@@ -1,4 +1,11 @@
 SHELL := /bin/bash
+
+.PHONY: version
+VERSION_BASE := 0.1.0
+STAGE := prototype
+BUILD_NUM = $(shell git rev-list --count HEAD)
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
 export CARGO_TERM_COLOR=always
 .PHONY: clean check all rv_all
 .PHONY: rv_hello_world rv_store_fault rv_wateros_user_lib
@@ -11,6 +18,8 @@ COLOR_ANSI_CYAN := \033[36m
 COLOR_ANSI_WHITE := \033[37m
 
 COLOR_ANSI_CLEAR := \033[0m
+
+VERSION := v$(COLOR_ANSI_GREEN)$(VERSION_BASE)$(COLOR_ANSI_CLEAR)-$(COLOR_ANSI_PURPLE)$(STAGE)$(COLOR_ANSI_CLEAR).$(BUILD_NUM)+$(COLOR_ANSI_YELLOW)$(BRANCH)$(COLOR_ANSI_CLEAR)
 
 common_dependencies := ./src/share/**
 
@@ -52,6 +61,10 @@ define ERROR
 endef
 
 -include ./src/bin/Makefile.generated
+
+version:
+	$(call INFO, "当前版本信息如下：")
+	@echo -e "$(COLOR_ANSI_CYAN)WaterOS User-Mode Programs\t$(COLOR_ANSI_WHITE)--version\t$(VERSION)"
 
 all_start_info:
 	$(call INFO, "开始构建所有用户态程序...")
