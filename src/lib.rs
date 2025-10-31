@@ -6,7 +6,6 @@ mod riscv;
 mod share;
 pub use share::console::print;
 use share::syscall;
-
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.entry")]
 pub extern "C" fn _start() {
@@ -32,4 +31,7 @@ pub fn yield_() -> isize {
 }
 pub fn get_time() -> isize {
     syscall::sys_get_time()
+}
+pub fn brk(addr : usize) -> isize {
+    syscall::sys_brk(addr)
 }

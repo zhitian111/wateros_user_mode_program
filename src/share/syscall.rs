@@ -12,7 +12,9 @@ pub fn sys_exit(xstate : i32) -> isize {
 pub fn sys_yield() -> isize {
     syscall::sys_yield()
 }
-
 pub fn sys_get_time() -> isize {
     syscall::sys_get_time()
+}
+pub fn sys_brk(addr : usize) -> isize {
+    syscall::sys_brk(addr)
 }
