@@ -45,7 +45,7 @@ SECTIONS{
   }
   bss_end = .;
   kernel_end = .;
-}
+
   /* 该段是用于存储堆栈展开的调试信息的 */
      /DISCARD/ : {
         *(.eh_frame)
