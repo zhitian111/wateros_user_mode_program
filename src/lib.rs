@@ -4,10 +4,12 @@
 #![feature(alloc_error_handler)]
 
 mod riscv;
-mod share;
+pub mod share;
+use crate::riscv::syscall::sys_waitpid;
 pub use share::console::print;
 use share::heap_allocator::init_heap;
 use share::syscall;
+
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.entry")]
 pub extern "C" fn _start() {
@@ -37,4 +39,36 @@ pub fn get_time() -> isize {
 }
 pub fn brk(addr : usize) -> isize {
     syscall::sys_brk(addr)
+}
+pub fn uname(addr : usize) -> isize {
+    syscall::sys_uname(addr)
+}
+pub fn wait(exit_code : &mut i32) -> isize {
+    loop {
+        match sys_waitpid(-1, exit_code as *mut i32) {
+            -2 => {
+                yield_();
+            }
+            exit_pid => return exit_pid,
+        }
+    }
+}
+pub fn waitpid(pid : usize, exit_code : &mut i32) -> isize {
+    loop {
+        match sys_waitpid(pid as isize, exit_code as *mut i32) {
+            -2 => {
+                yield_();
+            }
+            exit_pid => return exit_pid,
+        }
+    }
+}
+pub fn fork() -> isize {
+    syscall::sys_fork()
+}
+pub fn exec(path : &str) -> isize {
+    syscall::sys_exec(path)
+}
+pub fn read(fd : usize, buffer : &mut [u8]) -> isize {
+    syscall::sys_read(fd, buffer)
 }
