@@ -18,3 +18,18 @@ pub fn sys_get_time() -> isize {
 pub fn sys_brk(addr : usize) -> isize {
     syscall::sys_brk(addr)
 }
+pub fn sys_uname(addr : usize) -> isize {
+    syscall::sys_uname(addr)
+}
+pub fn sys_fork() -> isize {
+    syscall::sys_fork()
+}
+pub fn sys_waitpid(pid : isize, exit_code : *mut i32) -> isize {
+    syscall::sys_waitpid(pid, exit_code)
+}
+pub fn sys_exec(path : &str) -> isize {
+    syscall::sys_exec(path)
+}
+pub fn sys_read(fd : usize, buffer : &mut [u8]) -> isize {
+    syscall::sys_read(fd, buffer)
+}

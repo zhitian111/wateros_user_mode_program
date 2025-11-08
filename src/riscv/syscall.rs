@@ -11,12 +11,22 @@ fn syscall(id : usize, args : [usize; 3]) -> isize {
     }
     ret
 }
-
+//写数据到文件描述符
 const SYSCALL_WRITE : usize = 64;
+//退出程序
 const SYSCALL_EXIT : usize = 93;
+//让出CPU时间片
 const SYSCALL_YIELD : usize = 124;
+//获取系统时间
 const SYSCALL_GET_TIME : usize = 169;
+//调整程序数据段大小
 const SYSCALL_BRK : usize = 214;
+//打印系统信息
+const SYSCALL_UNAME : usize = 160;
+const SYSCALL_FORK : usize = 220;
+const SYSCALL_WAITPID : usize = 260;
+const SYSCALL_EXEC : usize = 221;
+const SYSCALL_READ : usize = 63;
 pub fn sys_write(fd : usize, buffer : &[u8]) -> isize {
     syscall(SYSCALL_WRITE, [fd,
                             buffer.as_ptr()
@@ -37,4 +47,26 @@ pub fn sys_get_time() -> isize {
 }
 pub fn sys_brk(addr : usize) -> isize {
     syscall(SYSCALL_BRK, [addr, 0, 0])
+}
+pub fn sys_uname(addr : usize) -> isize {
+    syscall(SYSCALL_UNAME, [addr, 0, 0])
+}
+pub fn sys_fork() -> isize {
+    syscall(SYSCALL_FORK, [0, 0, 0])
+}
+pub fn sys_waitpid(pid : isize, exit_code : *mut i32) -> isize {
+    syscall(SYSCALL_WAITPID, [pid as usize,
+                              exit_code as usize,
+                              0])
+}
+pub fn sys_exec(path : &str) -> isize {
+    syscall(SYSCALL_EXEC, [path.as_ptr() as usize,
+                           0,
+                           0])
+}
+pub fn sys_read(fd : usize, buffer : &mut [u8]) -> isize {
+    syscall(SYSCALL_READ, [fd,
+                           buffer.as_mut_ptr()
+                           as usize,
+                           buffer.len()])
 }
