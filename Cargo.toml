@@ -31,6 +31,7 @@ path = "./src/bin/006_power_7.rs"
 
 
 [dependencies]
+buddy_system_allocator = {version = "0.11.0"}
 
 [profile.release]
 debug = false

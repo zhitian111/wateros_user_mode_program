@@ -1,15 +1,18 @@
 #![no_std]
 #![no_main]
 #![feature(linkage)]
+#![feature(alloc_error_handler)]
 
 mod riscv;
 mod share;
 pub use share::console::print;
+use share::heap_allocator::init_heap;
 use share::syscall;
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.entry")]
 pub extern "C" fn _start() {
     riscv::clear_bss();
+    init_heap();
     exit(main());
 }
 
