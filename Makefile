@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: version
+.PHONY: version stat
 VERSION_BASE := 0.1.0
 STAGE := prototype
 BUILD_NUM = $(shell git rev-list --count HEAD)
@@ -66,6 +66,14 @@ version:
 	$(call INFO, "当前版本信息如下：")
 	@echo -e "$(COLOR_ANSI_CYAN)WaterOS User-Mode Programs\t$(COLOR_ANSI_WHITE)--version\t$(VERSION)"
 
+stat: version
+	$(call INFO, "开始统计项目状态信息...")
+	$(call INFO, "开始统计项目文本文件字符数...")
+	@bash ./script/stat_texts.bash
+	$(call INFO, "项目文本文件字符数统计完成！")
+	$(call INFO, "开始统计项目贡献度...")
+	@bash ./script/stat_contribute.bash
+	$(call INFO, "项目贡献度统计完成！")
 all_start_info:
 	$(call INFO, "开始构建所有用户态程序...")
 
