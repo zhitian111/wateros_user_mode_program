@@ -8,7 +8,7 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
 export CARGO_TERM_COLOR=always
 .PHONY: clean check all rv_all
-.PHONY: rv_hello_world rv_store_fault rv_wateros_user_lib
+.PHONY: rv_hello_world rv_store_fault rv_wateros_user_lib rv_disk_img
 COLOR_ANSI_RED := \033[31m
 COLOR_ANSI_GREEN := \033[32m
 COLOR_ANSI_YELLOW := \033[33m
@@ -72,9 +72,15 @@ all_start_info:
 rv_all_start_info:
 	$(call INFO, "开始为 riscv 平台构建所有用户态程序...")
 
-rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin rv_all_elf
+rv_all: rv_all_start_info ./src/bin/Makefile.generated rv_all_bin rv_all_elf rv_disk_img
 	$(call INFO, "所有 riscv 平台的用户态程序已构建完成！")
 
+rv_disk_img:./rv_disk.img
+	$(call INFO, "riscv 平台测试使用的 ext4 文件系统磁盘映像构建完成！")
+
+./rv_disk.img: rv_all_elf
+	$(call INFO, "开始构建 riscv 平台测试使用的 ext4 文件系统磁盘镜像...")
+	@bash ./script/rv_gen_ext4_disk_img.sh
 
 ./src/bin/Makefile.generated: ./Cargo.toml ./script/gen_bin_makefile.sh
 	$(call INFO, "开始生成构建用户态程序所需的 Makefile")
@@ -103,4 +109,7 @@ clean:
 	$(call INFO, "开始清理构建产物...")
 	@$(CARGO) clean
 	@rm -rf ./bin
+	@rm -rf ./elf
+	@rm -f rv_disk.img
+	@rm -f la_disk.img
 	$(call INFO, "清理完成！")
