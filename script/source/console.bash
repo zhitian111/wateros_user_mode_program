@@ -30,3 +30,7 @@ error() {
   echo -e "${COLOR_ANSI_WHITE}[SCRITP]${COLOR_ANSI_CLEAR}${COLOR_ANSI_RED}\t[ERROR]\t$1 错误代码:$2${COLOR_ANSI_CLEAR}"
   exit $2
 }
+
+debug() {
+  echo -e "${COLOR_ANSI_WHITE}[SCRITP]${COLOR_ANSI_CLEAR}${COLOR_ANSI_BLUE}\t[DEBUG]\t$1${COLOR_ANSI_CLEAR}"
+}
