@@ -28,8 +28,12 @@ path = "./src/bin/005_power_5.rs"
 [[bin]]
 name = "006_power_7"
 path = "./src/bin/006_power_7.rs"
-
-
+[[bin]]
+name = "008_initproc"
+path = "./src/bin/008_initproc.rs"
+[[bin]]
+name = "009_user_shell"
+path = "./src/bin/009_user_shell.rs"
 [dependencies]
 buddy_system_allocator = {version = "0.11.0"}
 [profile.release]

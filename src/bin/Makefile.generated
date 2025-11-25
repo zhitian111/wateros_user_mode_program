@@ -15,6 +15,8 @@ OFFSET_UNIT := 0x20000
 	rv_004_power_3 \
 	rv_005_power_5 \
 	rv_006_power_7 \
+	rv_008_initproc \
+	rv_009_user_shell \
 
 
 
@@ -26,6 +28,8 @@ rv_all_bin: \
 	$(riscv_bin_path)/004_power_3.bin \
 	$(riscv_bin_path)/005_power_5.bin \
 	$(riscv_bin_path)/006_power_7.bin \
+	$(riscv_bin_path)/008_initproc.bin \
+	$(riscv_bin_path)/009_user_shell.bin \
 
 
 
@@ -37,6 +41,8 @@ rv_all_elf: \
 	rv_004_power_3 \
 	rv_005_power_5 \
 	rv_006_power_7 \
+	rv_008_initproc \
+	rv_009_user_shell \
 
 
 
@@ -277,4 +283,72 @@ $(riscv_elf_path)/006_power_7.elf: $(riscv_build_artifact_path)/006_power_7
 	$(call INFO, "清除完成！请见 $(riscv_elf_path)/006_power_7.elf")
 
 rv_006_power_7: $(riscv_bin_path)/006_power_7.bin $(riscv_elf_path)/006_power_7.elf
+
+# ------------------------------
+# 008_initproc
+# ------------------------------
+$(riscv_build_artifact_path)/008_initproc: ./src/bin/008_initproc.rs
+	$(call INFO, "更新 linker.ld 中的 START_OFFSET 对应 008_initproc...")
+	@PREFIX_NUM=$$(echo "008_initproc" | grep -oE '^[0-9]+'); \
+	if [ -z "$$PREFIX_NUM" ]; then PREFIX_NUM=0; fi; \
+	PREFIX_NUM=$$((10#$$PREFIX_NUM)); \
+	OFFSET_VAL=$$(($(OFFSET_UNIT) * PREFIX_NUM)); \
+	OFFSET_HEX=$$(printf "0x%X" "$$OFFSET_VAL"); \
+	echo "[MAKEFILE] 更新 linker.ld: START_OFFSET = $$OFFSET_HEX (编号 $$PREFIX_NUM)"; \
+	if [ -f ./src/riscv/linker_script/linker.ld ]; then \
+		awk -v new_val="$$OFFSET_HEX" 'NR==3{sub(/=.*/, "= " new_val ";")} {print}' ./src/riscv/linker_script/linker.ld > ./src/riscv/linker_script/linker.ld.tmp && mv ./src/riscv/linker_script/linker.ld.tmp ./src/riscv/linker_script/linker.ld; \
+	else \
+		echo "[MAKEFILE] ⚠️ 未找到 linker.ld，跳过更新"; \
+	fi
+	$(call INFO, "开始构建 riscv 平台的 008_initproc...")
+	@$(CARGO) build $(riscv_flags) --bin 008_initproc
+	$(call INFO, "riscv 平台的 008_initproc 构建完成！请见 $(riscv_build_artifact_path)/008_initproc")
+
+$(riscv_bin_path)/008_initproc.bin: $(riscv_build_artifact_path)/008_initproc
+	$(call INFO, "清除 riscv 平台的 008_initproc 二进制文件元数据以生成 bin 文件...")
+	@-mkdir -p $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/008_initproc $(riscv_bin_path)/008_initproc.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/008_initproc.bin")
+
+$(riscv_elf_path)/008_initproc.elf: $(riscv_build_artifact_path)/008_initproc
+	$(call INFO, "清除 riscv 平台的 008_initproc 二进制文件符号表以生成 elf 文件...")
+	@-mkdir -p $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/008_initproc $(riscv_elf_path)/008_initproc.elf
+	$(call INFO, "清除完成！请见 $(riscv_elf_path)/008_initproc.elf")
+
+rv_008_initproc: $(riscv_bin_path)/008_initproc.bin $(riscv_elf_path)/008_initproc.elf
+
+# ------------------------------
+# 009_user_shell
+# ------------------------------
+$(riscv_build_artifact_path)/009_user_shell: ./src/bin/009_user_shell.rs
+	$(call INFO, "更新 linker.ld 中的 START_OFFSET 对应 009_user_shell...")
+	@PREFIX_NUM=$$(echo "009_user_shell" | grep -oE '^[0-9]+'); \
+	if [ -z "$$PREFIX_NUM" ]; then PREFIX_NUM=0; fi; \
+	PREFIX_NUM=$$((10#$$PREFIX_NUM)); \
+	OFFSET_VAL=$$(($(OFFSET_UNIT) * PREFIX_NUM)); \
+	OFFSET_HEX=$$(printf "0x%X" "$$OFFSET_VAL"); \
+	echo "[MAKEFILE] 更新 linker.ld: START_OFFSET = $$OFFSET_HEX (编号 $$PREFIX_NUM)"; \
+	if [ -f ./src/riscv/linker_script/linker.ld ]; then \
+		awk -v new_val="$$OFFSET_HEX" 'NR==3{sub(/=.*/, "= " new_val ";")} {print}' ./src/riscv/linker_script/linker.ld > ./src/riscv/linker_script/linker.ld.tmp && mv ./src/riscv/linker_script/linker.ld.tmp ./src/riscv/linker_script/linker.ld; \
+	else \
+		echo "[MAKEFILE] ⚠️ 未找到 linker.ld，跳过更新"; \
+	fi
+	$(call INFO, "开始构建 riscv 平台的 009_user_shell...")
+	@$(CARGO) build $(riscv_flags) --bin 009_user_shell
+	$(call INFO, "riscv 平台的 009_user_shell 构建完成！请见 $(riscv_build_artifact_path)/009_user_shell")
+
+$(riscv_bin_path)/009_user_shell.bin: $(riscv_build_artifact_path)/009_user_shell
+	$(call INFO, "清除 riscv 平台的 009_user_shell 二进制文件元数据以生成 bin 文件...")
+	@-mkdir -p $(riscv_bin_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_bin_flag) $(riscv_build_artifact_path)/009_user_shell $(riscv_bin_path)/009_user_shell.bin
+	$(call INFO, "清除完成！请见 $(riscv_bin_path)/009_user_shell.bin")
+
+$(riscv_elf_path)/009_user_shell.elf: $(riscv_build_artifact_path)/009_user_shell
+	$(call INFO, "清除 riscv 平台的 009_user_shell 二进制文件符号表以生成 elf 文件...")
+	@-mkdir -p $(riscv_elf_path) >/dev/null 2>/dev/null
+	@rust-objcopy $(rust_objcopy_elf_flag) $(riscv_build_artifact_path)/009_user_shell $(riscv_elf_path)/009_user_shell.elf
+	$(call INFO, "清除完成！请见 $(riscv_elf_path)/009_user_shell.elf")
+
+rv_009_user_shell: $(riscv_bin_path)/009_user_shell.bin $(riscv_elf_path)/009_user_shell.elf
 

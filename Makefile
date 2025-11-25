@@ -44,7 +44,7 @@ bin_path := ./bin
 elf_path := ./elf
 
 rust_objcopy_bin_flag := --strip-all -O binary --gap-fill=0x00
-rust_objcopy_elf_flag := --strip-all -O binary --gap-fill=0x00
+rust_objcopy_elf_flag := --strip-all -O elf64-littleriscv
 
 define TRACE
 	@echo -e "$(COLOR_ANSI_PURPLE)[MAKEFILE]$(COLOR_ANSI_CLEAR)$(COLOR_ANSI_BLUE)\t[TRACE]\t$(1)$(COLOR_ANSI_CLEAR)"
